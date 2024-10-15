@@ -28,9 +28,10 @@ def share_file(service, file_id, email):
             'emailAddress': email
         }
         service.permissions().create(fileId=file_id, body=permission).execute()
-        st.success(f"File shared with {email}")
+        return True
     except Exception as e:
         st.error(f"An error occurred while sharing the file: {str(e)}")
+        return False
 
 st.title('Google Drive File Uploader and Sharer')
 
@@ -40,16 +41,18 @@ share_email = st.secrets.get("share_email")
 uploaded_file = st.file_uploader("Choose a file to upload to Google Drive", type=None)
 
 if uploaded_file is not None:
-    if st.button('Upload to Google Drive'):
+    if st.button('Upload and Share File'):
         with st.spinner('Uploading file to Google Drive...'):
             try:
                 file_id = upload_to_drive(drive_service, uploaded_file)
                 st.success(f"File uploaded successfully! File ID: {file_id}")
-                st.info("You can use this File ID to access or share the file in Google Drive.")
                 
                 if share_email:
-                    if st.button('Share File'):
-                        share_file(drive_service, file_id, share_email)
+                    if share_file(drive_service, file_id, share_email):
+                        st.success(f"File shared with {share_email}")
+                        file_link = f"https://drive.google.com/file/d/{file_id}/view"
+                        st.markdown(f"You can access the file [here]({file_link})")
+                        st.info("If you can't access the file immediately, please check your email for the sharing notification from Google Drive.")
                 else:
                     st.warning("No share email configured in secrets. File was uploaded but not shared.")
             except Exception as e:
