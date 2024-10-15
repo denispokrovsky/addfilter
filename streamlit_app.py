@@ -30,34 +30,34 @@ def share_file(service, file_id, email):
         service.permissions().create(fileId=file_id, body=permission).execute()
         return True
     except Exception as e:
-        st.error(f"An error occurred while sharing the file: {str(e)}")
+        st.error(f"An error occurred while processing the file: {str(e)}")
         return False
 
-st.title('Google Drive File Uploader and Sharer')
+st.title('Предпроцессинг анализа текстового содержания')
 
 drive_service = get_drive_service()
 share_email = st.secrets.get("share_email")
 
-uploaded_file = st.file_uploader("Choose a file to upload to Google Drive", type=None)
+uploaded_file = st.file_uploader("Выбираем файл для анализа текстового содержания", type=None)
 
 if uploaded_file is not None:
-    if st.button('Upload and Share File'):
-        with st.spinner('Uploading file to Google Drive...'):
+    if st.button('Передатть в обработку'):
+        with st.spinner('Приступаю...'):
             try:
                 file_id = upload_to_drive(drive_service, uploaded_file)
-                st.success(f"File uploaded successfully! File ID: {file_id}")
+                st.success(f"Успешно! Код операции: {file_id}")
                 
                 if share_email:
                     if share_file(drive_service, file_id, share_email):
-                        st.success(f"File shared with {share_email}")
-                        file_link = f"https://drive.google.com/file/d/{file_id}/view"
-                        st.markdown(f"You can access the file [here]({file_link})")
-                        st.info("If you can't access the file immediately, please check your email for the sharing notification from Google Drive.")
+                        st.success(f"Анализ сделан, ждите загрузки")
+                        #file_link = f"https://drive.google.com/file/d/{file_id}/view"
+                        #st.markdown(f"You can access the file [here]({file_link})")
+                        #st.info("If you can't access the file immediately, please check your email for the sharing notification from Google Drive.")
                 else:
-                    st.warning("No share email configured in secrets. File was uploaded but not shared.")
+                    st.warning("File was uploaded but not processed")
             except Exception as e:
-                st.error(f"An error occurred during upload: {str(e)}")
+                st.error(f"An error occurred during...: {str(e)}")
                 st.exception(e)  # This will print out the full traceback
 
 st.markdown("---")
-st.write("Note: This app uses secure credentials stored in Streamlit secrets.")
+st.write("Скоро файл будет обработан")
